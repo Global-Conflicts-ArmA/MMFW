@@ -15,10 +15,6 @@ if (!(_this call FUNC(Validate))) exitWith {
 
 private _condCompiled = compile _cond;
 
-if (call _condCompiled) exitwith {
-    _this call FUNC(Loop);
-};
-
 [{call (_this select 1)}, {
     (_this select 0) call FUNC(Loop);
 }, [_this, _condCompiled]] call CBA_fnc_waitUntilAndExecute;

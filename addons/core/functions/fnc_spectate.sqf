@@ -1,13 +1,11 @@
 #include "script_component.hpp"
-EXEC_CHECK(CLIENT);
+if !(hasInterface) exitWith {};
 
 SETPLPVAR(Dead,true);
 [player,true] remoteExecCall ["hideObject", 0];
 [player,true] remoteExecCall ["hideObjectGlobal", 2];
 player setCaptive true;
 player allowdamage false;
-[player, true] remoteExec ["setCaptive", 2];
-[player, false] remoteExec ["allowdamage", 2];
 player call FUNC(RemoveAllGear);
 player setPos [0, 0, 0];
 [player] joinSilent grpNull;
@@ -287,6 +285,7 @@ switch (_deathScreenType) do {
     };
 
     SETPLPVAR(Spectating,true);
+    SETMVAR(Spectating,true);
 
     [{(GETPLVAR(Spectating,false))},{
         GVAR(Spectate_PFH) = [{

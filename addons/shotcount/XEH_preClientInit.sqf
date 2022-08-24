@@ -7,7 +7,7 @@ EXEC_CHECK(CLIENT);
     [{!((uiNamespace getVariable [QGVAR(EndScreen),""]) isEqualto "")}, {
         params ["_textBLU","_textOPF","_textIND","_textCIV"];
         private _endscreenDiag = (uiNamespace getVariable QGVAR(EndScreen));
-        LOG_1("_endscreenDiag: %1",_endscreenDiag);
+        TRACE_1("",_endscreenDiag);
         private _bottomLeft = 3004;
         private _bottomMiddleLeft = 3005;
         private _bottomMiddleRight = 3006;

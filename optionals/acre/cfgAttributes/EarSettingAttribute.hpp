@@ -25,7 +25,7 @@ class GVAR(EarSetting): Title {
             rows = 1;
             columns = 3;
             strings[] = {"Left","Center","Right"};
-            values[] = {1,0,2};
+            values[] = {0,1,2};
             onToolboxSelChanged ="\
                 params ['_control','_value'];\
                 private _unit = ((get3denselected 'object') select 0);\

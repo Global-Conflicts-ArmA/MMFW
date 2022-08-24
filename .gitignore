@@ -1,7 +1,5 @@
 *.pbo
-discord/
 releases/
+addons/objective/
 
 @mmfw/
-
-*.zip

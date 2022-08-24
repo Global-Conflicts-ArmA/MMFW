@@ -20,17 +20,16 @@ if (_HostageModules isEqualTo []) exitwith {
 {
     private _logic = _x;
     private _AreaName = (_logic get3DENAttribute QGVAR(AreaName)) select 0;
-    private _loc = getPosATL _logic;
-    private _size = _logic getVariable ["objectArea", [100, 100]];
-    _size params ["_radiusX","_radiusY"];
-    private _direction = getdir _logic;
-    private _area = [_loc,_radiusX,_radiusY,_direction,true];
+    private _position = getPosATL _logic;
+    private _size = _logic getVariable ["objectArea", [100, 100, 0, false]];
+    _size params ["_radiusX", "_radiusY", "_direction", "_isRectangle"];
+    private _area = [_position, _radiusX, _radiusY, _direction, _isRectangle];
     private _sendArray = [_AreaName,_area,_logic];
     if (isNil QGVAR(AreaArray)) then {
         GVAR(AreaArray) = [_sendArray];
     } else {
-        private _index = [GVAR(AreaArray),_AreaName,0] call EFUNC(Core,searchNestedArray);
-        private _inArray = if (_index isEqualTo -1) then {false} else {true};
+        private _index = GVAR(AreaArray) findIf {_x select 0 isEqualTo _AreaName};
+        private _inArray = !(_index isEqualTo -1);
         LOG_2("_AreaName %1 _inArray %2",_AreaName,_inArray);
         if (_inArray) then {
             GVAR(AreaArray) set [_index,_sendArray];
@@ -47,11 +46,11 @@ if (_value isEqualto (_ctrlCombo lbData _index) || (_value isEqualto "No Area Se
     _ctrlCombo lbSetCurSel _index;
 };
 
-{
+GVAR(AreaArray) apply {
     _x params ["_AreaName","_area","_logic"];
     private _index = _ctrlCombo lbadd _AreaName;
     _ctrlCombo lbsetdata [_index,_AreaName];
     if (_value isEqualto (_ctrlCombo lbData _index)) then {
         _ctrlCombo lbSetCurSel _index;
     };
-} foreach GVAR(AreaArray);
+};

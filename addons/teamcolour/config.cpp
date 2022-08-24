@@ -6,10 +6,10 @@ class CfgPatches {
         units[] = {};
         weapons[] = {};
         requiredVersion = REQUIRED_VERSION;
-        requiredAddons[] = {"MMFW_main","MMFW_core"};
-        authors[] = {"Olsen","PiZZADOX"};
+        requiredAddons[] = {"MMFW_main", "MMFW_core"};
+        authors[] = {"Olsen", "PiZZADOX"};
         author = "MMFW Team";
-        authorUrl = "https://github.com/unitedoperations";
+        authorUrl = "https://github.com/Global-Conflicts-ArmA/MMFW";
         VERSION_CONFIG;
     };
 };

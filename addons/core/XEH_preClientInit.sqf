@@ -5,8 +5,6 @@ LOG("Client Pre Init");
 
 [QGVAR(RecievePlayerVars), {
     params ["_playerUnit","_varArray"];
-    //LOG_1("Var Recieve _playerUnit: %1",_playerUnit);
-    //LOG_1("Var Recieve _varArray: %1",_varArray);
     if !(local _playerUnit) exitwith {};
     {
         _x params ["_propertyName","_value"];
@@ -49,8 +47,8 @@ LOG("Client Pre Init");
 
 [{!(isNull player)}, {
     LOG_1("Client call waituntil player: %1",player);
-    [QGVAR(RecievePlayerVarRequest), [player,clientOwner]] call CBA_fnc_serverEvent;
-    SETMVAR(SpawnPos,(getpos player));
+    [QGVAR(RecievePlayerVarRequest), [player]] call CBA_fnc_serverEvent;
+    SETMVAR(SpawnPos,(getposATL player));
     GVAR(TeamTag) = switch (side player) do {
         case WEST: {"BLUFOR"};
         case EAST: {"OPFOR"};
@@ -79,65 +77,56 @@ LOG("Client Pre Init");
 }] call CBA_fnc_addEventHandler;
 
 [QGVAR(PlayerRespawnEvent), {
-    [] call FUNC(HandlePlayerRespawn);
-}] call CBA_fnc_addEventHandler;
-
-[QGVAR(PlayerRespawnRecieveTicketEvent), {
-    params ["_unit","_response","_ticketType","_ticketsRemaining"];
-    LOG_1("RecieveTicketEvent",_this);
-    if !(local _unit) exitwith {};
-    private ["_delay"];
-    switch (side player) do {
-        case west: {
-            _delay = MGETMVAR(Respawn_Delay_BLUFOR,5);
-        };
-        case east: {
-            _delay = MGETMVAR(Respawn_Delay_OPFOR,5);
-        };
-        case independent: {
-            _delay = MGETMVAR(Respawn_Delay_Indfor,5);
-        };
-        case civilian: {
-            _delay = MGETMVAR(Respawn_Delay_Civ,5);
-        };
+    params [
+        ["_message", "", [""]],
+        "_newSide",
+        "_teamRespawnMarker"
+    ];
+    private _delay = switch (side player) do {
+        case west: {(MGETMVAR(Respawn_Delay_BLUFOR,5))};
+        case east: {(MGETMVAR(Respawn_Delay_OPFOR,5))};
+        case independent: {(MGETMVAR(Respawn_Delay_Indfor,5))};
+        case civilian: {(MGETMVAR(Respawn_Delay_Civ,5))};
     };
     [{
-        params ["_response","_ticketType","_ticketsRemaining"];
-        switch (_ticketType) do {
-            case "IND": {
-                if (_response) then {
-                    [QGVAR(PlayerRespawnEvent), []] call CBA_fnc_localEvent;
-                    if (_ticketsRemaining isEqualTo 0) exitwith {
-                        "You have no respawn tickets remaining." call BIS_fnc_titleText;
-                    };
-                    private _pluralForm = "tickets";
-                    if (_ticketsRemaining isEqualTo 1) then {
-                        _pluralForm = "ticket";
-                    };
-                    (format ["You have %1 respawn %2 remaining.",_ticketsRemaining,_pluralForm]) call BIS_fnc_titleText;
-                } else {
-                    [QEGVAR(Spectator,StartSpectateEvent), []] call CBA_fnc_localEvent;
-                    "You had no respawn tickets remaining<br />Enabling spectator." call BIS_fnc_titleText;
-                };
-            };
-            case "TEAM": {
-                if (_response) then {
-                    [QGVAR(PlayerRespawnEvent), []] call CBA_fnc_localEvent;
-                    if (_ticketsRemaining isEqualTo 0) exitwith {
-                        "Your team has no respawn tickets remaining." call BIS_fnc_titleText;
-                    };
-                    private _pluralForm = "tickets";
-                    if (_ticketsRemaining isEqualTo 1) then {
-                        _pluralForm = "ticket";
-                    };
-                    (format ["Your team has %1 respawn %2 remaining.",_ticketsRemaining,_pluralForm]) call BIS_fnc_titleText;
-                } else {
-                    [QEGVAR(Spectator,StartSpectateEvent), []] call CBA_fnc_localEvent;
-                    "Your team had no respawn tickets remaining<br />Enabling spectator." call BIS_fnc_titleText;
-                };
-            };
+        params [
+            ["_message", "", [""]],
+            "_newSide",
+            "_teamRespawnMarker"
+        ];
+        [_message, _newSide, _teamRespawnMarker] call FUNC(HandlePlayerRespawn);
+    }, [_message, _newSide, _teamRespawnMarker], _delay] call CBA_fnc_waitAndExecute;
+}] call CBA_fnc_addEventHandler;
+
+[QEGVAR(Respawn,RecieveTeamTicketEvent), {
+    params [
+        "_unit",
+        "_response",
+        "_ticketsRemaining",
+        "_newSide",
+        "_teamRespawnMarker",
+        "_queueVar"
+    ];
+    LOG_1("RecieveTicketEvent",_this);
+    LOCAL_CHECK(_unit);
+    if (_response) then {
+        private _message = if (_ticketsRemaining isEqualTo 0) then {
+            "Your team has no respawn tickets remaining."
+        } else {
+            private _pluralForm = ["tickets","ticket"] select (_ticketsRemaining isEqualTo 1);
+            (format ["Your team has %1 respawn %2 remaining.",_ticketsRemaining,_pluralForm])
         };
-    }, [_response,_ticketType,_ticketsRemaining], (_delay + 3)] call CBA_fnc_WaitAndExecute;
+        if (_teamRespawnMarker isEqualTo objNull && {!(EGETMVAR(Respawn,SpawnPosRespawn,false))}) then {
+            [QEGVAR(Spectator,StartSpectateEvent), [], _unit] call CBA_fnc_localEvent;
+            "There are no eligible respawn points! Respawn points can be activated during the mission." call BIS_fnc_titleText;
+            [QEGVAR(Respawn,AddToQueueEvent), [_unit, _newSide, _queueVar, _message]] call CBA_fnc_serverEvent;
+        } else {
+            [QGVAR(PlayerRespawnEvent), [_message, _newSide, _teamRespawnMarker]] call CBA_fnc_localEvent;
+        };
+    } else {
+        [QEGVAR(Spectator,StartSpectateEvent), []] call CBA_fnc_localEvent;
+        "Your team had no respawn tickets remaining <br/> Enabling spectator." call BIS_fnc_titleText;
+    };
 }] call CBA_fnc_addEventHandler;
 
 [QGVAR(PlayerInitEvent), {
@@ -163,15 +152,20 @@ LOG("Client Pre Init");
 }] call CBA_fnc_addEventHandler;
 
 [QEGVAR(EndConditions,TimelimitClient), {
-    params ["_command",["_timeLimit",0,[0]]];
-    private _timeLeft = _timeLimit - (CBA_missionTime / 60);
+    params ["_command", ["_arg", 0, [0, ""]]];
     switch (_command) do {
         case "check": {
-            private _text = format ["TimeLimit: %1 Time Remaining: %2",_timeLimit,_timeLeft];
+            private _timeLeft = _arg - (CBA_missionTime / 60);
+            private _text = format ["TimeLimit: %1 Time Remaining: %2", _arg, _timeLeft];
             [_text, 1.5, ACE_Player, 10] call ace_common_fnc_displayTextStructured;
         };
         case "extend": {
-            private _text = format ["TimeLimit set to: %1 Time Remaining: %2",_timeLimit,_timeLeft];
+            private _timeLeft = _arg - (CBA_missionTime / 60);
+            private _text = format ["TimeLimit set to: %1 Time Remaining: %2", _arg, _timeLeft];
+            [_text, 1.5, ACE_Player, 10] call ace_common_fnc_displayTextStructured;
+        };
+        case "message": {
+            private _text = format ["TimeLimit message set to: %1", _arg];
             [_text, 1.5, ACE_Player, 10] call ace_common_fnc_displayTextStructured;
         };
         default {};
@@ -179,10 +173,11 @@ LOG("Client Pre Init");
 }] call CBA_fnc_addEventHandler;
 
 [QEGVAR(JiP,PlayerEvent), {
-    if ((((EGETMVAR(JiP,Type_BLUFOR,0)) isEqualto 2) && {(side player isEqualto west)})
-        || (((EGETMVAR(JiP,Type_OPFOR,0)) isEqualto 2) && {(side player isEqualto east)})
-        || (((EGETMVAR(JiP,Type_Indfor,0)) isEqualto 2) && {(side player isEqualto independent)})
-        || (((EGETMVAR(JiP,Type_Civ,0)) isEqualto 2) && {(side player isEqualto civilian)})
+    private _side = side player;
+    if ((((EGETMVAR(JiP,Type_BLUFOR,0)) isEqualto 2) && {_side isEqualto west})
+        || {((EGETMVAR(JiP,Type_OPFOR,0)) isEqualto 2) && {_side isEqualto east}}
+        || {((EGETMVAR(JiP,Type_Indfor,0)) isEqualto 2) && {_side isEqualto independent}}
+        || {((EGETMVAR(JiP,Type_Civ,0)) isEqualto 2) && {_side isEqualto civilian}}
     ) exitwith {
         ["This mission does not support JIP for your team, enabling spectator"] call FUNC(parsedTextDisplay);
         [QGVAR(UnTrackEvent), [player]] call CBA_fnc_serverEvent;

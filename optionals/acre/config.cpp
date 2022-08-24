@@ -11,9 +11,9 @@ class CfgPatches {
             "MMFW_core",
             "acre_main"
         };
-        authors[] = {"Olsen","PiZZADOX","Sacher"};
+        authors[] = {"Olsen", "PiZZADOX"};
         author = "MMFW Team";
-        authorUrl = "https://github.com/unitedoperations";
+        authorUrl = "https://github.com/Global-Conflicts-ArmA/MMFW";
         VERSION_CONFIG;
     };
 };

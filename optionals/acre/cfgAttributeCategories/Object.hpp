@@ -36,7 +36,7 @@ class GVAR(UnitOptions) {
             control = QGVAR(EarSetting);
             expression = ENTITY_EXPRESSION;
             condition = "objectControllable";
-            defaultValue = "0";
+            defaultValue = "1";
         };
         class GVAR(LR_RADIO_Enabled) {
             property = QGVAR(LR_RADIO_Enabled);
@@ -63,7 +63,7 @@ class GVAR(UnitOptions) {
             control = QGVAR(EarSetting);
             expression = ENTITY_EXPRESSION;
             condition = "objectControllable";
-            defaultValue = "0";
+            defaultValue = "1";
         };
         class GVAR(PK_RADIO_Enabled) {
             property = QGVAR(PK_RADIO_Enabled);
@@ -90,7 +90,17 @@ class GVAR(UnitOptions) {
             control = QGVAR(EarSetting);
             expression = ENTITY_EXPRESSION;
             condition = "objectControllable";
-            defaultValue = "0";
+            defaultValue = "1";
+        };
+        class GVAR(AdditionalLanguage) {
+            displayName = "Additional Language";
+            tooltip = "Selected Language will be added to the list of spoken Babbel langauges. The language must be defined in the main acre settings.";
+            property = QEGVAR(ACRE,AdditionalLanguage);
+            control = QEGVAR(ACRE,AdditionalLanguageAttribute);
+            typeName = "STRING";
+            expression = ENTITY_EXPRESSION;
+            condition = "objectControllable";
+            defaultValue = "'None'";
         };
     };
 };

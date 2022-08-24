@@ -29,7 +29,7 @@ class CfgMods {
         hideName = "true";
         actionName = "Website";
         action = CSTRING(URL);
-        description = "Issue Tracker: https://github.com/PiZZAD0X/MMFW/issues";
+        description = "Issue Tracker: https://github.com/Global-Conflicts-ArmA/MMFW/issues";
     };
 };
 

@@ -27,9 +27,9 @@ class CfgPatches {
             "MMFW_starttext",
             "MMFW_teamcolour"
         };
-        authors[] = {"Olsen","PiZZADOX","Sacher"};
+        authors[] = {"Olsen", "PiZZADOX"};
         author = "MMFW Team";
-        authorUrl = "https://github.com/PiZZAD0X/MMFW";
+        authorUrl = "https://github.com/Global-Conflicts-ArmA/MMFW";
         VERSION_CONFIG;
     };
 };
